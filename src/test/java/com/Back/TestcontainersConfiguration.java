@@ -9,12 +9,13 @@ import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {
-	@Value("${DATABSE_USERNAME:faq}")
+	@Value("${DATABASE_USERNAME:faq}")
 	private String username;
 	@Value("${DATABASE_PASSWORD:faq123}")
 	private String password;
 	@Value("${DATABASE_NAME:faqdb}")
 	private String databaseName;
+
 	@Bean
 	@ServiceConnection
 	PostgreSQLContainer postgresContainer() {
@@ -24,7 +25,5 @@ class TestcontainersConfiguration {
 				.withDatabaseName(databaseName)
 				.withUsername(username)
 				.withPassword(password);
-
 	}
-
 }
