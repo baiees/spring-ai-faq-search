@@ -1,10 +1,12 @@
 package com.Back.faq.entity;
 
 
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
+@Table("faq")
 @Data
 @Builder
 @NoArgsConstructor
@@ -12,12 +14,11 @@ import lombok.*;
 public class Faq {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 500)
+    @Column("question")
     private String question;
 
-    @Column(nullable = false, length = 2000)
+    @Column("answer")
     private String answer;
 }
