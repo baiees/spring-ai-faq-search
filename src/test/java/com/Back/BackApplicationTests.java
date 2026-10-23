@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.List;
 
@@ -18,12 +20,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest
 @ActiveProfiles("test")
-@AutoConfigureWebTestClient
+@AutoConfigureWebTestClient(timeout="120s")
 class BackApplicationTests {
 	@Autowired
 	private FaqRepository faqRepository;
 	@Autowired
 	private FaqService faqService;
+	@Autowired
+	private WebTestClient webTestClient;
 
 	@Test
 	@DisplayName("FAQ 게시글 초기화 테스트")
@@ -42,6 +46,30 @@ class BackApplicationTests {
 				.anyMatch(faq -> faq.getQuestion().contains("배송") || faq.getAnswer().contains("배송")));
 		System.out.println("FTS 검색 결과:");
 		results.forEach(System.out::println);
+	}
+
+	@Test
+	@DisplayName("Ai Controller 테스트")
+	void t3(){
+		webTestClient.get()
+				.uri(uri->
+						uri.path("/api/v1/ai/chat")
+								.queryParam("message","배송은 얼마나 걸리나요?")
+								.build())
+				.accept(MediaType.TEXT_EVENT_STREAM)
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(String.class)
+				.getResponseBody()
+				.collectList()
+				.map(list->String.join("",list))
+				.doOnNext(response->{
+					assertNotNull(response);
+					assertFalse(response.isEmpty());
+					System.out.println("AI 응답: " + response);
+				})
+				.block();
+
 	}
 
 }
